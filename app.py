@@ -277,34 +277,27 @@ def create_app():
         flash("Comment posted!", "ok")
         return redirect(url_for("question_detail", question_id=a.question_id))
 
-    @app.post("/comments/<int:comment_id>/delete")
-    def delete_comment(comment_id: int):
+    # ---------- delete answer ----------
+    @app.post("/answers/<int:answer_id>/delete")
+    def delete_answer(answer_id: int):
         if not login_required():
             return redirect(url_for("login_page"))
 
         me = current_user()
-        c = db.session.get(Comment, comment_id)
-        if not c:
+        a = db.session.get(Answer, answer_id)
+        if not a:
             abort(404)
 
-        # author or admin can delete
-        if c.author_id != me.id and not is_admin(me):
-            flash("You can only delete your own comment.", "error")
-            # redirect back to the related question page
-            a = db.session.get(Answer, c.answer_id)
+        if a.author_id != me.id and not is_admin(me):
+            flash("You can only delete your own answer.", "error")
             return redirect(url_for("question_detail", question_id=a.question_id))
 
-        # get question id before deletion for redirect
-        a = db.session.get(Answer, c.answer_id)
-        qid = a.question_id if a else None
-
-        db.session.delete(c)
+        qid = a.question_id
+        db.session.delete(a)
         db.session.commit()
 
-        flash("Comment deleted.", "ok")
-        if qid:
-            return redirect(url_for("question_detail", question_id=qid))
-        return redirect(url_for("home"))
+        flash("Answer deleted.", "ok")
+        return redirect(url_for("question_detail", question_id=qid))
 
     # ---------- delete question ----------
     @app.post("/questions/<int:question_id>/delete")
