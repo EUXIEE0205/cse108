@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{% block title %}MiniForum{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+
+    <div class="nav">
+      <a class="brand" href="{{ url_for('home') }}">MiniForum</a>
+      <div class="nav-right">
+        {% if me %}
+          <span class="chip">Hi, {{ me.username }}</span>
+          <a class="btn" href="{{ url_for('new_question_page') }}">New Question</a>
+          <form method="post" action="{{ url_for('logout') }}" style="display:inline;">
+            <button class="btn secondary" type="submit">Logout</button>
+          </form>
+        {% else %}
+          <a class="btn" href="{{ url_for('login_page') }}">Login</a>
+          <a class="btn secondary" href="{{ url_for('register_page') }}">Register</a>
+        {% endif %}
+      </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="flash {{ category }}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

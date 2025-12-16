@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Register • MiniForum{% endblock %}
+
+{% block content %}
+<div class="card narrow">
+  <h2>Register</h2>
+  <form method="post" action="{{ url_for('register_post') }}">
+    <label>Username</label>
+    <input name="username" placeholder="min 3 chars" />
+
+    <label>Password</label>
+    <input name="password" type="password" placeholder="min 6 chars" />
+
+    <button class="btn" type="submit">Create account</button>
+  </form>
+
+  <div class="muted" style="margin-top:10px;">
+    Already have one? <a href="{{ url_for('login_page') }}">Login</a>
+  </div>
+</div>
+{% endblock %}

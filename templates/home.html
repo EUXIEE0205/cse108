@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Home • MiniForum{% endblock %}
+
+{% block content %}
+
+  <div class="hero">
+    <div>
+      <div class="hero-title">Browse questions</div>
+      <div class="hero-sub">Filter by topic, search keywords, and jump into answers.</div>
+    </div>
+
+    {% if me %}
+      <a class="btn" href="{{ url_for('new_question_page') }}">+ New Question</a>
+    {% else %}
+      <a class="btn" href="{{ url_for('login_page') }}">Login to post</a>
+    {% endif %}
+  </div>
+
+  <div class="card panel">
+    <form method="get" action="{{ url_for('home') }}" class="filters2">
+      <div class="field">
+        <label>Topic</label>
+        <select name="topic">
+          <option value="" {% if not selected_topic %}selected{% endif %}>All</option>
+          {% for t in topics %}
+            <option value="{{ t }}" {% if t == selected_topic %}selected{% endif %}>{{ t }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Sort</label>
+        <select name="sort">
+          <option value="new" {% if sort == "new" %}selected{% endif %}>Newest</option>
+          <option value="old" {% if sort == "old" %}selected{% endif %}>Oldest</option>
+        </select>
+      </div>
+
+      <div class="field grow">
+        <label>Search</label>
+        <input name="q" value="{{ q }}" placeholder="Search title or body..." />
+      </div>
+
+      <button class="btn" type="submit">Search</button>
+    </form>
+  </div>
+
+  <div class="list2">
+    {% for x in questions %}
+      <a class="postrow" href="{{ url_for('question_detail', question_id=x.id) }}">
+        <div class="postrow-accent"></div>
+
+        <div class="postrow-main">
+          <div class="postrow-meta">
+            <span class="tag">{{ x.topic }}</span>
+            <span class="dot">•</span>
+            <span>{{ x.created_at.strftime("%Y-%m-%d %H:%M") }}</span>
+          </div>
+
+          <div class="postrow-title">{{ x.title }}</div>
+
+          <div class="postrow-sub">
+            by <span class="user">{{ x.author.username }}</span>
+            <span class="dot">•</span>
+            <span class="count">{{ answer_counts.get(x.id, 0) }} answers</span>
+          </div>
+
+          <div class="postrow-preview">{{ x.body }}</div>
+        </div>
+      </a>
+    {% endfor %}
+
+    {% if questions|length == 0 %}
+      <div class="empty">
+        <div class="empty-title">No questions found</div>
+        <div class="muted">Try a different topic or search term.</div>
+      </div>
+    {% endif %}
+  </div>
+
+{% endblock %}

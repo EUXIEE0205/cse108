@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}{{ question.title }} • MiniForum{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <div class="muted">{{ question.topic }} • {{ question.created_at.strftime("%Y-%m-%d %H:%M") }}</div>
+    <h2>{{ question.title }}</h2>
+    <div class="muted">by {{ question.author.username }}</div>
+    <p>{{ question.body }}</p>
+  </div>
+
+  <div class="card">
+    <h3>Answers</h3>
+
+    {% if answers|length == 0 %}
+      <div class="muted">No answers yet.</div>
+    {% endif %}
+
+    {% for a in answers %}
+      <div class="answer">
+        <div class="answer-vote">
+          <!-- ONE FORM: buttons submit their own value reliably -->
+          <form method="post" action="{{ url_for('vote', answer_id=a.id) }}" class="vote-form">
+            <button
+              class="btn small {% if my_votes.get(a.id) == 1 %}active{% endif %}"
+              name="value"
+              value="1"
+              type="submit"
+            >▲</button>
+
+            <div class="score">{{ a.score }}</div>
+
+            <button
+              class="btn small {% if my_votes.get(a.id) == -1 %}active{% endif %}"
+              name="value"
+              value="-1"
+              type="submit"
+            >▼</button>
+          </form>
+        </div>
+
+        <div class="answer-body">
+          <div class="muted">by {{ a.author.username }} • {{ a.created_at.strftime("%Y-%m-%d %H:%M") }}</div>
+          <div>{{ a.body }}</div>
+
+          <!-- COMMENTS -->
+          <div class="comments">
+            <div class="muted" style="margin-top:10px;">Comments</div>
+
+            {% set clist = comments_by_answer.get(a.id, []) %}
+            {% if clist|length == 0 %}
+              <div class="muted smalltext">No comments yet.</div>
+            {% else %}
+              {% for c in clist %}
+                <div class="comment">
+                  <div class="muted smalltext">
+                    {{ c.author.username }} • {{ c.created_at.strftime("%Y-%m-%d %H:%M") }}
+                  </div>
+                  <div class="smalltext">{{ c.body }}</div>
+                </div>
+              {% endfor %}
+            {% endif %}
+
+            {% if me %}
+              <form class="comment-form" method="post" action="{{ url_for('add_comment', answer_id=a.id) }}">
+                <input name="body" placeholder="Reply to this answer..." />
+                <button class="btn secondary" type="submit">Reply</button>
+              </form>
+            {% else %}
+              <div class="muted smalltext">
+                <a href="{{ url_for('login_page') }}">Login</a> to comment.
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="card">
+    <h3>Add an answer</h3>
+    {% if not me %}
+      <div class="muted">You must <a href="{{ url_for('login_page') }}">login</a> to answer.</div>
+    {% else %}
+      <form method="post" action="{{ url_for('add_answer', question_id=question.id) }}">
+        <textarea name="body" rows="5"></textarea>
+        <button class="btn" type="submit">Post Answer</button>
+      </form>
+    {% endif %}
+  </div>
+{% endblock %}
