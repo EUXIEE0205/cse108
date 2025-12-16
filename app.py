@@ -9,6 +9,9 @@ def create_app():
     app.config.from_object(Config)
     db.init_app(app)
 
+    with app.app_context():
+        db.create_all()
+
     # ---------- helpers ----------
     def current_user():
         uid = session.get("user_id")
@@ -264,9 +267,6 @@ def create_app():
     return app
 
 app = create_app()
-
-with app.app_context():
-    db.create_all()
 
 if __name__ == "__main__":
     app.run()
