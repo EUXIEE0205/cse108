@@ -39,7 +39,8 @@ def create_app():
 
     @app.context_processor
     def inject_user():
-        return {"me": current_user()}
+        u = current_user()
+        return {"me": u, "me_is_admin": is_admin(u)}
 
     @app.template_filter("highlight")
     def highlight_filter(text: str, query: str | None):
@@ -583,11 +584,15 @@ def create_app():
         if not a:
             abort(404)
 
-        if a.author_id != me.id:
+        if not (is_admin(me) or a.author_id == me.id):
             flash("You can only delete your own answer.", "error")
             return redirect(url_for("question_detail", question_id=a.question_id))
 
         qid = a.question_id
+        # If this answer is accepted, clear the accepted reference
+        q = db.session.get(Question, qid)
+        if q and q.accepted_answer_id == a.id:
+            q.accepted_answer_id = None
         db.session.delete(a)
         db.session.commit()
 
@@ -781,7 +786,7 @@ def create_app():
         if not q:
             abort(404)
 
-        if q.author_id != me.id:
+        if not (is_admin(me) or q.author_id == me.id):
             flash("You can only delete your own question.", "error")
             return redirect(url_for("question_detail", question_id=question_id))
 

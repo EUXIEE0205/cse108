@@ -90,7 +90,7 @@
           <div class="postrow-preview">{{ x.body|highlight(q) }}</div>
         </div>
       </a>
-      {% if me and me.id == x.author_id %}
+      {% if me and (me.id == x.author_id or me_is_admin) %}
         <div style="margin:6px 12px 18px 12px;">
           <a class="btn small" href="{{ url_for('edit_question_page', question_id=x.id) }}">Edit</a>
         </div>
