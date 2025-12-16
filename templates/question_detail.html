@@ -7,6 +7,11 @@
     <h2>{{ question.title }}</h2>
     <div class="muted">by {{ question.author.username }}</div>
     <p>{{ question.body }}</p>
+    {% if me and (me.id == question.author_id or me.username == 'admin') %}
+      <form method="post" action="{{ url_for('delete_question', question_id=question.id) }}" style="margin-top:8px;">
+        <button class="btn secondary" type="submit">Delete Question</button>
+      </form>
+    {% endif %}
   </div>
 
   <div class="card">
@@ -57,6 +62,11 @@
                     {{ c.author.username }} • {{ c.created_at.strftime("%Y-%m-%d %H:%M") }}
                   </div>
                   <div class="smalltext">{{ c.body }}</div>
+                  {% if me and (me.id == c.author_id or me.username == 'admin') %}
+                    <form method="post" action="{{ url_for('delete_comment', comment_id=c.id) }}" class="inline-form" style="margin-top:4px;">
+                      <button class="btn small secondary" type="submit">Delete</button>
+                    </form>
+                  {% endif %}
                 </div>
               {% endfor %}
             {% endif %}
