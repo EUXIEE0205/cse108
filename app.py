@@ -7,6 +7,11 @@ from datetime import datetime
 from config import Config
 from extensions import db
 from models import User, Question, Answer, Vote, Comment, Report, TopicFollow, Draft
+from datetime import timezone
+try:
+    from zoneinfo import ZoneInfo
+except Exception:
+    ZoneInfo = None
 
 def create_app():
     app = Flask(__name__)
@@ -90,6 +95,21 @@ def create_app():
         # Linkify URLs/emails; Bleach 6.x has default safe callbacks (including nofollow)
         linked = bleach.linkify(cleaned)
         return Markup(linked)
+
+    @app.template_filter("dt_pacific")
+    def dt_pacific_filter(dt: datetime | None):
+        if not dt:
+            return ""
+        # Assume stored times are UTC-naive; make them UTC then convert
+        try:
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            tz = ZoneInfo("America/Los_Angeles") if ZoneInfo else None
+            local_dt = dt.astimezone(tz) if tz else dt
+            return local_dt.strftime("%Y-%m-%d %H:%M")
+        except Exception:
+            # Fallback: basic formatting
+            return dt.strftime("%Y-%m-%d %H:%M")
 
     # Ensure tables exist and admin user is present when app is created
     with app.app_context():
@@ -583,8 +603,8 @@ def create_app():
         a = db.session.get(Answer, answer_id)
         if not a:
             abort(404)
-
-        if a.author_id != me.id:
+        # Admin can edit any; otherwise only the author
+        if not (is_admin(me) or a.author_id == me.id):
             flash("You can only edit your own answer.", "error")
             return redirect(url_for("question_detail", question_id=a.question_id))
 
@@ -599,8 +619,8 @@ def create_app():
         a = db.session.get(Answer, answer_id)
         if not a:
             abort(404)
-
-        if a.author_id != me.id:
+        # Admin can edit any; otherwise only the author
+        if not (is_admin(me) or a.author_id == me.id):
             flash("You can only edit your own answer.", "error")
             return redirect(url_for("question_detail", question_id=a.question_id))
 
@@ -780,8 +800,8 @@ def create_app():
         q = db.session.get(Question, question_id)
         if not q:
             abort(404)
-
-        if q.author_id != me.id:
+        # Admin can edit any; otherwise only the author
+        if not (is_admin(me) or q.author_id == me.id):
             flash("You can only edit your own question.", "error")
             return redirect(url_for("question_detail", question_id=question_id))
 
@@ -796,8 +816,8 @@ def create_app():
         q = db.session.get(Question, question_id)
         if not q:
             abort(404)
-
-        if q.author_id != me.id:
+        # Admin can edit any; otherwise only the author
+        if not (is_admin(me) or q.author_id == me.id):
             flash("You can only edit your own question.", "error")
             return redirect(url_for("question_detail", question_id=question_id))
 

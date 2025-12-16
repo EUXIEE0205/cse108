@@ -16,7 +16,7 @@
                 <span class="dot">•</span>
                 <span>#{{ r.target_id }}</span>
                 <span class="dot">•</span>
-                <span>{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                <span>{{ r.created_at|dt_pacific }}</span>
               </div>
               <div class="postrow-title">Reported by {{ r.reporter.username }} — Reason: {{ r.reason }}</div>
               <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">

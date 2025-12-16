@@ -3,7 +3,7 @@
 
 {% block content %}
   <div class="card">
-    <div class="muted">{{ question.topic }} • {{ question.created_at.strftime("%Y-%m-%d %H:%M") }}</div>
+    <div class="muted">{{ question.topic }} • {{ question.created_at|dt_pacific }}</div>
     <h2>{{ question.title }}</h2>
     <div class="muted">by {% if question.is_anonymous %}Anonymous{% else %}{{ question.author.username }}{% endif %}</div>
     <div class="markdown">{{ question.body|md }}</div>
@@ -55,7 +55,7 @@
 
         <div class="answer-body">
           <div class="muted">
-            by {{ a.author.username }} • {{ a.created_at.strftime("%Y-%m-%d %H:%M") }}
+            by {{ a.author.username }} • {{ a.created_at|dt_pacific }}
             {% if question.accepted_answer_id == a.id %}
               <span class="tag" style="margin-left:6px;">Accepted ✅</span>
             {% endif %}
@@ -95,7 +95,7 @@
               {% for c in clist %}
                 <div class="comment">
                   <div class="muted smalltext">
-                    {{ c.author.username }} • {{ c.created_at.strftime("%Y-%m-%d %H:%M") }}
+                    {{ c.author.username }} • {{ c.created_at|dt_pacific }}
                   </div>
                   <div class="smalltext">{{ c.body }}</div>
                 </div>
