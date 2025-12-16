@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Leaderboard • MiniForum{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <h2>Leaderboard</h2>
+    {% if rows|length == 0 %}
+      <div class="muted">No data yet.</div>
+    {% else %}
+      <table style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr class="muted">
+            <th style="text-align:left; padding:6px;">Rank</th>
+            <th style="text-align:left; padding:6px;">User</th>
+            <th style="text-align:right; padding:6px;">Points</th>
+            <th style="text-align:right; padding:6px;">Questions</th>
+            <th style="text-align:right; padding:6px;">Answers</th>
+            <th style="text-align:right; padding:6px;">Votes Received</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in rows %}
+            <tr>
+              <td style="padding:6px;">{{ loop.index }}</td>
+              <td style="padding:6px;">{{ r.username }}</td>
+              <td style="padding:6px; text-align:right;">{{ r.points }}</td>
+              <td style="padding:6px; text-align:right;">{{ r.questions }}</td>
+              <td style="padding:6px; text-align:right;">{{ r.answers }}</td>
+              <td style="padding:6px; text-align:right;">{{ r.votes }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+{% endblock %}

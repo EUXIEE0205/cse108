@@ -5,12 +5,21 @@
   <div class="card">
     <div class="muted">{{ question.topic }} • {{ question.created_at.strftime("%Y-%m-%d %H:%M") }}</div>
     <h2>{{ question.title }}</h2>
-    <div class="muted">by {{ question.author.username }}</div>
-    <p>{{ question.body }}</p>
-    {% if me and (me.id == question.author_id or me.username == 'admin') %}
-      <form method="post" action="{{ url_for('delete_question', question_id=question.id) }}" style="margin-top:8px;" class="confirm-delete">
-        <button class="btn secondary" type="submit">Delete Question</button>
+    <div class="muted">by {% if question.is_anonymous %}Anonymous{% else %}{{ question.author.username }}{% endif %}</div>
+    <div class="markdown">{{ question.body|md }}</div>
+    {% if me %}
+      <form method="post" action="{{ url_for('report_question', question_id=question.id) }}" style="margin-top:8px; display:flex; gap:8px;">
+        <input name="reason" placeholder="Reason" />
+        <button class="btn secondary" type="submit">Report</button>
       </form>
+    {% endif %}
+    {% if me and me.id == question.author_id %}
+      <div style="margin-top:8px; display:flex; gap:8px;">
+        <a class="btn" href="{{ url_for('edit_question_page', question_id=question.id) }}">Edit Question</a>
+        <form method="post" action="{{ url_for('delete_question', question_id=question.id) }}" class="confirm-delete">
+          <button class="btn secondary" type="submit">Delete Question</button>
+        </form>
+      </div>
     {% endif %}
   </div>
 
@@ -45,12 +54,34 @@
         </div>
 
         <div class="answer-body">
-          <div class="muted">by {{ a.author.username }} • {{ a.created_at.strftime("%Y-%m-%d %H:%M") }}</div>
-          <div>{{ a.body }}</div>
-          {% if me and (me.id == a.author_id or me.username == 'admin') %}
-            <form method="post" action="{{ url_for('delete_answer', answer_id=a.id) }}" style="margin-top:6px;" class="confirm-delete">
-              <button class="btn small secondary" type="submit">Delete Answer</button>
+          <div class="muted">
+            by {{ a.author.username }} • {{ a.created_at.strftime("%Y-%m-%d %H:%M") }}
+            {% if question.accepted_answer_id == a.id %}
+              <span class="tag" style="margin-left:6px;">Accepted ✅</span>
+            {% endif %}
+          </div>
+          <div class="markdown">{{ a.body|md }}</div>
+          {% if me %}
+            <form method="post" action="{{ url_for('report_answer', answer_id=a.id) }}" style="margin-top:6px; display:flex; gap:8px;">
+              <input name="reason" placeholder="Reason" />
+              <button class="btn small secondary" type="submit">Report</button>
             </form>
+          {% endif %}
+          {% if me and me.id == a.author_id %}
+            <div style="margin-top:6px; display:flex; gap:8px;">
+              <a class="btn small" href="{{ url_for('edit_answer_page', answer_id=a.id) }}">Edit Answer</a>
+              <form method="post" action="{{ url_for('delete_answer', answer_id=a.id) }}" class="confirm-delete">
+                <button class="btn small secondary" type="submit">Delete Answer</button>
+              </form>
+            </div>
+          {% endif %}
+
+          {% if me and me.id == question.author_id %}
+            {% if question.accepted_answer_id != a.id %}
+              <form method="post" action="{{ url_for('accept_answer', question_id=question.id, answer_id=a.id) }}" style="margin-top:6px;">
+                <button class="btn small" type="submit">Accept ✅</button>
+              </form>
+            {% endif %}
           {% endif %}
 
           <!-- COMMENTS -->
@@ -86,6 +117,20 @@
       </div>
     {% endfor %}
   </div>
+
+  {% if similar_questions and similar_questions|length > 0 %}
+    <div class="card">
+      <h3>Similar questions</h3>
+      <ul style="margin-left:16px;">
+        {% for s in similar_questions %}
+          <li style="margin:6px 0;">
+            <a href="{{ url_for('question_detail', question_id=s.id) }}">{{ s.title }}</a>
+            <span class="muted">• {{ s.topic }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
 
   <div class="card">
     <h3>Add an answer</h3>

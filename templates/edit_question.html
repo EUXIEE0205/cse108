@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Edit Question • MiniForum{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <h3>Edit Question</h3>
+    <form method="post" action="{{ url_for('edit_question_post', question_id=question.id) }}">
+      <div class="field">
+        <label>Title</label>
+        <input name="title" value="{{ question.title }}" />
+      </div>
+      <div class="field">
+        <label>Topic</label>
+        <input name="topic" value="{{ question.topic }}" />
+      </div>
+      <div class="field">
+        <label>Body</label>
+        <textarea name="body" rows="6">{{ question.body }}</textarea>
+      </div>
+      <div>
+        <button class="btn" type="submit">Save</button>
+        <a class="btn secondary" href="{{ url_for('question_detail', question_id=question.id) }}">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

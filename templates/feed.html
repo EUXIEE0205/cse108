@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}My Feed • MiniForum{% endblock %}
+
+{% block content %}
+  <div class="hero">
+    <div>
+      <div class="hero-title">My Feed</div>
+      <div class="hero-sub">Questions from topics you follow.</div>
+    </div>
+  </div>
+
+  <div class="list2">
+    {% for x in questions %}
+      <a class="postrow" href="{{ url_for('question_detail', question_id=x.id) }}">
+        <div class="postrow-accent"></div>
+
+        <div class="postrow-main">
+          <div class="postrow-meta">
+            <span class="tag">{{ x.topic }}</span>
+            <span class="dot">•</span>
+            <span>{{ x.created_at.strftime("%Y-%m-%d %H:%M") }}</span>
+          </div>
+
+          <div class="postrow-title">
+            {{ x.title }}
+            {% if x.accepted_answer_id %}
+              <span class="tag" style="margin-left:6px;">Solved</span>
+            {% endif %}
+          </div>
+
+          <div class="postrow-sub">
+            by <span class="user">{% if x.is_anonymous %}Anonymous{% else %}{{ x.author.username }}{% endif %}</span>
+            <span class="dot">•</span>
+            <span class="count">{{ answer_counts.get(x.id, 0) }} answers</span>
+          </div>
+
+          <div class="postrow-preview">{{ x.body }}</div>
+        </div>
+      </a>
+    {% endfor %}
+
+    {% if questions|length == 0 %}
+      <div class="empty">
+        <div class="empty-title">No followed topics yet</div>
+        <div class="muted">Follow a topic from the Home page to see posts here.</div>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

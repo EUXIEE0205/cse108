@@ -14,6 +14,7 @@
       <div class="nav-right">
         {% if me %}
           <span class="chip">Hi, {{ me.username }}</span>
+          <a class="btn secondary" href="{{ url_for('my_feed') }}">My Feed</a>
           <a class="btn" href="{{ url_for('new_question_page') }}">New Question</a>
           <form method="post" action="{{ url_for('logout') }}" style="display:inline;">
             <button class="btn secondary" type="submit">Logout</button>

@@ -4,17 +4,35 @@
 {% block content %}
 <div class="card">
   <h2>New Question</h2>
+  {% if preview %}
+    <div class="card" style="background:#f8f9fb; border:1px solid #e5e7eb; margin-bottom:12px;">
+      <div class="muted">Preview{% if preview.is_anonymous %} • Anonymous{% endif %}</div>
+      <h3>{{ preview.title }}</h3>
+      <div class="muted">Topic: {{ preview.topic }}</div>
+      <div class="markdown">{{ preview.body|md }}</div>
+    </div>
+  {% endif %}
+
   <form method="post" action="{{ url_for('new_question_post') }}">
     <label>Title</label>
-    <input name="title" maxlength="140" />
+    <input name="title" maxlength="140" value="{{ (form_title if form_title is not none else (draft.title if draft else '')) }}" />
 
     <label>Topic</label>
-    <input name="topic" placeholder="campus, tech, housing..." />
+    <input name="topic" placeholder="campus, tech, housing..." value="{{ (form_topic if form_topic is not none else (draft.topic if draft else '')) }}" />
 
     <label>Body</label>
-    <textarea name="body" rows="8"></textarea>
+    <textarea name="body" rows="8">{{ (form_body if form_body is not none else (draft.body if draft else '')) }}</textarea>
 
-    <button class="btn" type="submit">Post</button>
+    <label style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+      <input type="checkbox" name="is_anonymous" value="1" />
+      <span>Post anonymously</span>
+    </label>
+
+    <div style="display:flex; gap:8px; margin-top:8px;">
+      <button class="btn" type="submit" name="action" value="post">Post</button>
+      <button class="btn secondary" type="submit" name="action" value="save_draft">Save Draft</button>
+      <button class="btn secondary" type="submit" name="action" value="preview">Preview</button>
+    </div>
   </form>
 </div>
 {% endblock %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Reports • MiniForum{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <h2>Open Reports</h2>
+    {% if reports|length == 0 %}
+      <div class="muted">No open reports.</div>
+    {% else %}
+      <div class="list2">
+        {% for r in reports %}
+          <div class="postrow" style="padding:12px;">
+            <div class="postrow-main">
+              <div class="postrow-meta">
+                <span class="tag">{{ r.target_type|capitalize }}</span>
+                <span class="dot">•</span>
+                <span>#{{ r.target_id }}</span>
+                <span class="dot">•</span>
+                <span>{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+              </div>
+              <div class="postrow-title">Reported by {{ r.reporter.username }} — Reason: {{ r.reason }}</div>
+              <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+                {% if r.target_type == 'question' %}
+                  {% set hidden = q_states.get(r.target_id, False) %}
+                  {% if hidden %}
+                    <form method="post" action="{{ url_for('admin_unhide_question', question_id=r.target_id) }}">
+                      <button class="btn" type="submit">Unhide Question</button>
+                    </form>
+                  {% else %}
+                    <form method="post" action="{{ url_for('admin_hide_question', question_id=r.target_id) }}">
+                      <button class="btn secondary" type="submit">Hide Question</button>
+                    </form>
+                  {% endif %}
+                {% elif r.target_type == 'answer' %}
+                  {% set hidden = a_states.get(r.target_id, False) %}
+                  {% if hidden %}
+                    <form method="post" action="{{ url_for('admin_unhide_answer', answer_id=r.target_id) }}">
+                      <button class="btn" type="submit">Unhide Answer</button>
+                    </form>
+                  {% else %}
+                    <form method="post" action="{{ url_for('admin_hide_answer', answer_id=r.target_id) }}">
+                      <button class="btn secondary" type="submit">Hide Answer</button>
+                    </form>
+                  {% endif %}
+                {% endif %}
+                <form method="post" action="{{ url_for('admin_resolve_report', report_id=r.id) }}">
+                  <button class="btn" type="submit">Mark Resolved</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

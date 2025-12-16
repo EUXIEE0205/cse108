@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Edit Answer • MiniForum{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <h3>Edit Answer</h3>
+    <form method="post" action="{{ url_for('edit_answer_post', answer_id=answer.id) }}">
+      <div class="field">
+        <label>Body</label>
+        <textarea name="body" rows="6">{{ answer.body }}</textarea>
+      </div>
+      <div>
+        <button class="btn" type="submit">Save</button>
+        <a class="btn secondary" href="{{ url_for('question_detail', question_id=answer.question_id) }}">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

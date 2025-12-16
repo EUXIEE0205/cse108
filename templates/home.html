@@ -17,7 +17,7 @@
   </div>
 
   <div class="card panel">
-    <form method="get" action="{{ url_for('home') }}" class="filters2">
+    <form method="get" action="{{ url_for('home') }}" class="filters2" style="align-items:flex-end; gap:12px;">
       <div class="field">
         <label>Topic</label>
         <select name="topic">
@@ -31,6 +31,7 @@
       <div class="field">
         <label>Sort</label>
         <select name="sort">
+          <option value="trending" {% if sort == "trending" %}selected{% endif %}>Trending</option>
           <option value="new" {% if sort == "new" %}selected{% endif %}>Newest</option>
           <option value="old" {% if sort == "old" %}selected{% endif %}>Oldest</option>
         </select>
@@ -43,6 +44,22 @@
 
       <button class="btn" type="submit">Search</button>
     </form>
+
+    {% if me and selected_topic %}
+      <div style="margin-top:8px;">
+        {% if selected_topic in followed_topics %}
+          <form method="post" action="{{ url_for('unfollow_topic') }}">
+            <input type="hidden" name="topic" value="{{ selected_topic }}" />
+            <button class="btn secondary" type="submit">Unfollow “{{ selected_topic }}”</button>
+          </form>
+        {% else %}
+          <form method="post" action="{{ url_for('follow_topic') }}">
+            <input type="hidden" name="topic" value="{{ selected_topic }}" />
+            <button class="btn" type="submit">Follow “{{ selected_topic }}”</button>
+          </form>
+        {% endif %}
+      </div>
+    {% endif %}
   </div>
 
   <div class="list2">
@@ -57,17 +74,27 @@
             <span>{{ x.created_at.strftime("%Y-%m-%d %H:%M") }}</span>
           </div>
 
-          <div class="postrow-title">{{ x.title }}</div>
+          <div class="postrow-title">
+            {{ x.title|highlight(q) }}
+            {% if x.accepted_answer_id %}
+              <span class="tag" style="margin-left:6px;">Solved</span>
+            {% endif %}
+          </div>
 
           <div class="postrow-sub">
-            by <span class="user">{{ x.author.username }}</span>
+            by <span class="user">{% if x.is_anonymous %}Anonymous{% else %}{{ x.author.username }}{% endif %}</span>
             <span class="dot">•</span>
             <span class="count">{{ answer_counts.get(x.id, 0) }} answers</span>
           </div>
 
-          <div class="postrow-preview">{{ x.body }}</div>
+          <div class="postrow-preview">{{ x.body|highlight(q) }}</div>
         </div>
       </a>
+      {% if me and me.id == x.author_id %}
+        <div style="margin:6px 12px 18px 12px;">
+          <a class="btn small" href="{{ url_for('edit_question_page', question_id=x.id) }}">Edit</a>
+        </div>
+      {% endif %}
     {% endfor %}
 
     {% if questions|length == 0 %}
@@ -75,6 +102,25 @@
         <div class="empty-title">No questions found</div>
         <div class="muted">Try a different topic or search term.</div>
       </div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div style="display:flex; align-items:center; justify-content:space-between;">
+      <h3>Top Users</h3>
+      <a href="{{ url_for('leaderboard_page') }}">View all</a>
+    </div>
+    {% if leaderboard_top and leaderboard_top|length > 0 %}
+      <ol style="margin-left:16px;">
+        {% for r in leaderboard_top %}
+          <li style="margin:6px 0;">
+            <span class="user">{{ r.username }}</span>
+            <span class="muted">• {{ r.points }} pts</span>
+          </li>
+        {% endfor %}
+      </ol>
+    {% else %}
+      <div class="muted">No users yet.</div>
     {% endif %}
   </div>
 
